@@ -105,7 +105,8 @@ venv.bak/
 
 
 # Folders
-data/
+raw_data/
+processed_data/
 
 # Other
 *core
