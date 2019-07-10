@@ -11,15 +11,19 @@ class XRay:
     def __init__(self, image_id, label, data_path):
         self.image_id = str(image_id)
         image_path = data_path + "/" + image_id + "/" + image_id + ".dcm"
-        self.data = pydicom.dcmread(image_path)
+        self.image_path = "/home/oleguer/projects/kaggle_Pneumothorax-Segmentation/raw_data/siim-acr-pneumothorax-segmentation-data/dicom-images-train/1.2.276.0.7230010.3.1.2.8323329.300.1517875162.258080/1.2.276.0.7230010.3.1.3.8323329.300.1517875162.258079/1.2.276.0.7230010.3.1.4.8323329.300.1517875162.258081.dcm"
+        self.data = pydicom.dcmread(self.image_path)
         
+        print(label == " -1")
+        print(type(label))
         rows = int(self.data.Rows)
         cols = int(self.data.Columns)
         self.mask = rle2mask(label, rows, cols)
-        pass
+        print(self.mask.shape)
+        
 
     def show_dcm_info(self):
-        print("Filename.........:", file_path)
+        print("Filename.........:", self.image_path)
         print("Storage type.....:", self.data.SOPClassUID)
         print()
 
@@ -66,7 +70,5 @@ if __name__ == "__main__":
         EncodedPixels = str(row.values[1])  # Not sure why doesnt let me access by dict key row["EncodedPixels"]...
         xray = XRay(image_id = ImageID, label = EncodedPixels, data_path = train_path)
         xray.show_dcm_info()
-        xray.plot_pixel_array()
+        xray.plot_scan()
         xray.plot_label()
-
-        a = input() # To make the program stop

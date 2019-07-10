@@ -103,10 +103,14 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-
 # Folders
 raw_data/
 processed_data/
+raw_data/
+processed_data/
+best_models/
+models/
+logs/
 
 # Other
 *core

@@ -3,7 +3,7 @@ My solution (attempt) for the SIIM-ACR Pneumothorax Segmentation kaggle: https:/
 
 
 ## Download data
-To download the raw data, either run system_setup/install_google_dependencies.sh and then copy scripts/data_processing/download_images.py to raw_data folder and run it.
+To download the raw data, either run system_setup/install_google_dependencies.sh and then copy kaggle_provided_data/data_processing/download_images.py to raw_data folder and run it.
 
 Or just download and extract from here:
 https://www.kaggle.com/jesperdramsch/siim-acr-pneumothorax-segmentation-data/downloads/siim-acr-pneumothorax-segmentation-data.zip/1

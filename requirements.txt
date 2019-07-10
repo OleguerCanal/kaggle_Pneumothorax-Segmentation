@@ -1,3 +1,4 @@
 retrying
 google-auth
 pydicom
+Pillow==2.2.1
