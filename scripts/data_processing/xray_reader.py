@@ -5,14 +5,16 @@ from matplotlib import cm
 import pydicom
 from mask_functions import mask2rle, rle2mask
 import cv2
+from glob import glob
 
 class XRay:
     """ Class to hold an XRay information
     """
-    def __init__(self, image_id, label, data_path):
+    def __init__(self, image_id, image_path, label):
         self.image_id = str(image_id)
-        image_path = data_path + "/" + image_id + "/" + image_id + ".dcm"
-        self.image_path = "/home/oleguer/projects/kaggle_Pneumothorax-Segmentation/raw_data/siim-acr-pneumothorax-segmentation-data/dicom-images-train/1.2.276.0.7230010.3.1.2.8323329.300.1517875162.258080/1.2.276.0.7230010.3.1.3.8323329.300.1517875162.258079/1.2.276.0.7230010.3.1.4.8323329.300.1517875162.258081.dcm"
+        # image_path = data_path + "/" + image_id + "/" + image_id + ".dcm"
+        # self.image_path = "/home/oleguer/projects/kaggle_Pneumothorax-Segmentation/raw_data/siim-acr-pneumothorax-segmentation-data/dicom-images-train/1.2.276.0.7230010.3.1.2.8323329.300.1517875162.258080/1.2.276.0.7230010.3.1.3.8323329.300.1517875162.258079/1.2.276.0.7230010.3.1.4.8323329.300.1517875162.258081.dcm"
+        self.image_path = image_path
         self.data = pydicom.dcmread(self.image_path)
         self.scan = self.data.pixel_array
 
@@ -22,13 +24,10 @@ class XRay:
         cols = int(self.data.Columns)
         self.mask = rle2mask(label, rows, cols)
         print(self.mask.shape)
-        
 
     def show_dcm_info(self):
-        print("Filename.........:", self.image_path)
+        # print("Filename.........:", self.image_path)
         print("Storage type.....:", self.data.SOPClassUID)
-        print()
-
         pat_name = self.data.PatientName
         display_name = pat_name.family_name + ", " + pat_name.given_name
         print("Patient's name......:", display_name)
@@ -38,7 +37,6 @@ class XRay:
         print("Modality............:", self.data.Modality)
         print("Body Part Examined..:", self.data.BodyPartExamined)
         print("View Position.......:", self.data.ViewPosition)
-        
         if 'PixelData' in self.data:
             rows = int(self.data.Rows)
             cols = int(self.data.Columns)
@@ -46,6 +44,7 @@ class XRay:
                 rows=rows, cols=cols, size=len(self.data.PixelData)))
             if 'PixelSpacing' in self.data:
                 print("Pixel spacing....:", self.data.PixelSpacing)
+        print()
 
     def plot_scan(self, figsize = (10,10)):
         plt.figure(figsize = figsize)
@@ -72,16 +71,29 @@ class XRay:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+class XRayLabeller():
+    """Class to provide 
+    """
+    def __init__(self, labels_file):
+        self.labels_df = pd.read_csv(labels_file)
+
+    def get_id_label(self, image_path):
+        image_id = image_path.split("/")[-1].replace(".dcm", "")
+        label = self.labels_df[self.labels_df['ImageId'] == image_id]
+        label = label.values[0][1]  # Not sure why other stuff doesn work
+        return image_id, label
+
 if __name__ == "__main__":
-    labels_file = "/home/oleguer/projects/kaggle_Pneumothorax-Segmentation/raw_data/siim-acr-pneumothorax-segmentation-data/train-rle.csv"
-    train_path = "/home/oleguer/projects/kaggle_Pneumothorax-Segmentation/raw_data/siim-acr-pneumothorax-segmentation-data/dicom-images-train/"
+    data_path = "/home/oleguer/projects/kaggle_Pneumothorax-Segmentation/raw_data/siim-acr-pneumothorax-segmentation-data/"
 
-    labels_df = pd.read_csv(labels_file)
-
-    for index, row in labels_df.iterrows():
-        ImageID = row["ImageId"]
-        EncodedPixels = str(row.values[1])  # Not sure why doesnt let me access by dict key row["EncodedPixels"]...
-        xray = XRay(image_id = ImageID, label = EncodedPixels, data_path = train_path)
+    labeller = XRayLabeller(data_path + "train-rle.csv")
+    train_paths = sorted(glob(data_path + "dicom-images-train/*/*/*.dcm"))
+    test_paths = sorted(glob(data_path + "dicom-images-test/*/*/*.dcm"))
+    
+    for image_path in train_paths:
+        image_id, label = labeller.get_id_label(image_path)
+        print(label)
+        xray = XRay(image_id = image_id, image_path = image_path, label = label)
         xray.show_dcm_info()
         # xray.plot_scan()
         # xray.plot_label()
