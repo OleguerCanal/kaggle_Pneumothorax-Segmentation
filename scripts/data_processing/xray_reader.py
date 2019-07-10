@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 import pydicom
 from mask_functions import mask2rle, rle2mask
+import cv2
 
 class XRay:
     """ Class to hold an XRay information
@@ -13,7 +14,8 @@ class XRay:
         image_path = data_path + "/" + image_id + "/" + image_id + ".dcm"
         self.image_path = "/home/oleguer/projects/kaggle_Pneumothorax-Segmentation/raw_data/siim-acr-pneumothorax-segmentation-data/dicom-images-train/1.2.276.0.7230010.3.1.2.8323329.300.1517875162.258080/1.2.276.0.7230010.3.1.3.8323329.300.1517875162.258079/1.2.276.0.7230010.3.1.4.8323329.300.1517875162.258081.dcm"
         self.data = pydicom.dcmread(self.image_path)
-        
+        self.scan = self.data.pixel_array
+
         print(label == " -1")
         print(type(label))
         rows = int(self.data.Rows)
@@ -47,7 +49,7 @@ class XRay:
 
     def plot_scan(self, figsize = (10,10)):
         plt.figure(figsize = figsize)
-        plt.imshow(self.data.pixel_array, cmap = plt.cm.bone)
+        plt.imshow(self.scan, cmap = plt.cm.bone)
         plt.show()
 
     def plot_label(self, figsize = (10,10)):
@@ -56,8 +58,19 @@ class XRay:
         plt.show()
     
     def plot_composition(self):
-        #TODO(oleguer)
-        pass
+        rgb = cv2.cvtColor(self.scan, cv2.COLOR_GRAY2RGB)
+        rgb = np.uint8(rgb)
+
+        mask = np.zeros((rgb.shape[0], rgb.shape[1], 3), np.uint8)
+        mask[:,:, 2] = self.mask
+
+        composition = cv2.addWeighted(rgb, 0.8, mask, 0.2, 0)
+
+        cv2.namedWindow('composition', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('composition', 600, 600)
+        cv2.imshow('composition', composition)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     labels_file = "/home/oleguer/projects/kaggle_Pneumothorax-Segmentation/raw_data/siim-acr-pneumothorax-segmentation-data/train-rle.csv"
@@ -70,5 +83,6 @@ if __name__ == "__main__":
         EncodedPixels = str(row.values[1])  # Not sure why doesnt let me access by dict key row["EncodedPixels"]...
         xray = XRay(image_id = ImageID, label = EncodedPixels, data_path = train_path)
         xray.show_dcm_info()
-        xray.plot_scan()
-        xray.plot_label()
+        # xray.plot_scan()
+        # xray.plot_label()
+        xray.plot_composition()
