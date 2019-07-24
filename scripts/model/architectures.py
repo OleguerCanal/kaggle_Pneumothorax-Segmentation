@@ -4,6 +4,9 @@ from keras.layers.convolutional import Conv2D, Conv2DTranspose
 from keras.layers.pooling import MaxPooling2D
 from keras.layers.merge import concatenate
 
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).parent))
 from metrics import dice_coef
 
 def simple_u_net():

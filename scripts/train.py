@@ -1,12 +1,14 @@
-from keras.preprocessing.image import ImageDataGenerator
-from keras.callbacks import TensorBoard, ReduceLROnPlateau, ModelCheckpoint
+import datetime
+from glob import glob
+from tqdm import tqdm
 
 from data_processing.xray_reader import XRay
-from data_processing.mask_functions import mask2rle  # Do I need to translate the image?
 from model.architectures import simple_u_net
 from model.metrics import dice_coef
 
 import tensorflow as tf
+from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import TensorBoard, ReduceLROnPlateau, ModelCheckpoint
 from keras.backend.tensorflow_backend import set_session
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -19,16 +21,19 @@ def load_data(train_paths, train_val_prop = 0.2, rnd_seed = 1):
     x_train = []
     y_train = []
 
-    for image_path in train_paths:
+    for image_path in tqdm(train_paths):
         xray = XRay(image_path = image_path)
         x_train.append(xray.scan)
         y_train.append(xray.mask)
         
-        # Sizes TODO(oleguer): This shuold only be done once
-        im_height = xray.scan.rows
-        im_width = xray.scan.cols
-        lab_height = xray.mask.rows
-        lab_width = xray.mask.cols
+        # Sizes TODO(oleguer): This should only be done once
+        im_height = xray.scan.shape[0]
+        im_width = xray.scan.shape[1]
+        lab_height = xray.mask.shape[0]
+        lab_width = xray.mask.shape[1]
+        del xray
+
+    print("Done")
 
     x_train = x_train.reshape((-1, im_height, im_width, 1))
     y_train = y_train.reshape((-1, lab_height, lab_width, 1))
@@ -37,6 +42,8 @@ def load_data(train_paths, train_val_prop = 0.2, rnd_seed = 1):
         x_train, y_train,
         test_size = train_val_prop,
         random_state = rnd_seed)
+
+    print("Done")
 
     return x_train, x_val, y_train, y_val
 

@@ -3,9 +3,13 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib import cm
 import pydicom
-from mask_functions import mask2rle, rle2mask
 import cv2
 from glob import glob
+
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).parent))
+from mask_functions import mask2rle, rle2mask
 
 class XRay:
     """ Class to hold an XRay information
