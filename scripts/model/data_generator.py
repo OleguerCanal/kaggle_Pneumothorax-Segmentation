@@ -2,6 +2,7 @@ from glob import glob
 import numpy as np
 import os
 import random
+from tqdm import tqdm
 
 from keras.preprocessing.image import ImageDataGenerator
 
@@ -37,9 +38,25 @@ class DiskDataGenerator():
         x_train = x_train.reshape((-1, self.im_height, self.im_width, 1))
         self.datagen.fit(x_train)
    
-    def __augment(self, x, y):
-        self.datagen.flow(x, y, batch)
-        return x, y
+    def get_val(self, val_ratio = 0.2):
+        """ Returns np arrays of validation data (removing them from test)
+        """
+        print("Loading validation data")
+        val_data = self.xrays_paths[0:int(val_ratio*len(self.xrays_paths))]
+        self.xrays_paths = self.xrays_paths[int(val_ratio*len(self.xrays_paths)):]
+
+        x_val = []
+        y_val = []
+        for path in tqdm(val_data):
+            xray = XRay(image_path = path)
+            x_val.append(xray.scan)
+            y_val.append(xray.mask)
+
+
+        x_val = np.array(x_val).reshape((-1, self.im_height, self.im_width, 1))
+        y_val = np.array(y_val).reshape((-1, self.im_height, self.im_width, 1))
+        return x_val, y_val
+
 
     def flow(self, batch_size):
         while True:
@@ -54,6 +71,7 @@ class DiskDataGenerator():
               xray = XRay(image_path = input_path)
               batch_input.append(xray.scan)
               batch_output.append(xray.mask)
+              del xray
 
           # Return a tuple of (input,output) to feed the network
           batch_x = np.array(batch_input)
@@ -63,7 +81,10 @@ class DiskDataGenerator():
           batch_y = batch_y.reshape((-1, self.im_height, self.im_width, 1))
 
           for x_augmented, y_augmented in self.datagen.flow(batch_x, batch_y, batch_size):
+            # print(x_augmented.shape)
+            # print(y_augmented.shape)
             yield x_augmented, y_augmented
+            del batch_x, batch_y
             break
 
 
@@ -77,8 +98,8 @@ if __name__ == "__main__":
         print(x.shape)
         print(y.shape)
         print("##")
-        pyplot.imshow(x[0, :, :, 0].reshape(1024, 1024), cmap=pyplot.get_cmap('gray'))
-        pyplot.show()
-        pyplot.imshow(y[0].reshape(1024, 1024), cmap=pyplot.get_cmap('gray'))
-        pyplot.show()
+        # pyplot.imshow(x[0, :, :, 0].reshape(1024, 1024), cmap=pyplot.get_cmap('gray'))
+        # pyplot.show()
+        # pyplot.imshow(y[0].reshape(1024, 1024), cmap=pyplot.get_cmap('gray'))
+        # pyplot.show()
 
