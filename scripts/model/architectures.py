@@ -9,7 +9,7 @@ import sys
 sys.path.append(str(Path(__file__).parent))
 from metrics import dice_coef
 
-def simple_u_net():
+def simple_u_net(im_chan = 1):
     inputs = Input((None, None, im_chan))
 
     c1 = Conv2D(8, (3, 3), activation='relu', padding='same') (inputs)
