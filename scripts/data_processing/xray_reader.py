@@ -7,12 +7,12 @@ import cv2
 from glob import glob
 
 from pathlib import Path
-import sys
-sys.path.append(str(Path(__file__).parent))
+import sys, os
+sys.path.append(str(Path(os.path.realpath(__file__)).parent))
 from mask_functions import mask2rle, rle2mask
 
 class XRay:
-    """ Class to hold an XRay information
+    """ Class to hold and plot XRay information
     """
     def __init__(self, image_path):
         self.image_id = image_path.split("/")[-1].replace(".png", "")
