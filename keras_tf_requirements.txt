@@ -1,0 +1,13 @@
+numpy
+opencv-contrib-python
+scipy
+matplotlib
+pillow
+imutils
+h5py
+requests
+progressbar2
+scikit-learn
+scikit-image
+tensorflow-gpu==1.12.0
+keras
