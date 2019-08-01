@@ -4,13 +4,15 @@ from keras.layers.convolutional import Conv2D, Conv2DTranspose
 from keras.layers.pooling import MaxPooling2D
 from keras.layers.merge import concatenate
 
+from keras.optimizers import RMSprop
+
 from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).parent))
 from metrics import dice_coef
 
-def simple_u_net(im_chan = 1):
-    inputs = Input((None, None, im_chan))
+def simple_u_net(input_shape = (256, 256, 1)):
+    inputs = Input(input_shape)
 
     c1 = Conv2D(8, (3, 3), activation='relu', padding='same') (inputs)
     c1 = Conv2D(8, (3, 3), activation='relu', padding='same') (c1)
@@ -62,7 +64,8 @@ def simple_u_net(im_chan = 1):
 
     outputs = Conv2D(1, (1, 1), activation='sigmoid') (c9)
 
+    optimizer = RMSprop(lr=1e-2)
     model = Model(inputs=[inputs], outputs=[outputs])
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[dice_coef])
+    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=[dice_coef])
     model.summary()
     return model

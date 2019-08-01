@@ -27,8 +27,16 @@ class XRay:
         # self.mask
         # print(self.mask.shape)
 
-        self.scan = cv2.imread(self.image_path, cv2.IMREAD_GRAYSCALE)
-        self.mask = cv2.imread(self.label_path, cv2.IMREAD_GRAYSCALE)
+        self.scan = cv2.imread(self.image_path, cv2.IMREAD_GRAYSCALE) / 255.
+        self.mask = cv2.imread(self.label_path, cv2.IMREAD_GRAYSCALE) / 255.
+        self.mask = cv2.resize(self.mask, (self.scan.shape[0], self.scan.shape[1]))
+
+        # print("max_scan", np.max(self.scan))
+        # print("min_scan", np.min(self.scan))
+
+        # print("max_mask", np.max(self.mask))
+        # print("min_mask", np.min(self.mask))
+        # print("###")
 
     def show_dcm_info(self):
         # print("Filename.........:", self.image_path)
@@ -59,7 +67,7 @@ class XRay:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    def plot_label(self, figsize = (10,10)):
+    def plot_label(self, figsize = (10, 10)):
         plt.figure(figsize = figsize)
         plt.imshow(self.mask, cmap = plt.cm.bone)
         plt.show()

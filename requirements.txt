@@ -2,3 +2,5 @@ retrying
 google-auth
 pydicom
 Pillow==3.3.2
+tqdm
+pandas
