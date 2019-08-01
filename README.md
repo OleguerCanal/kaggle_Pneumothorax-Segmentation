@@ -7,3 +7,16 @@ To download the raw data, either run system_setup/install_google_dependencies.sh
 
 Or just download and extract from here:
 https://www.kaggle.com/jesperdramsch/siim-acr-pneumothorax-segmentation-data/downloads/siim-acr-pneumothorax-segmentation-data.zip/1
+
+## Environment
+Set -up your machine with nvidia drivers, CUDA, cuDNN:
+https://www.pyimagesearch.com/2019/01/30/ubuntu-18-04-install-tensorflow-and-keras-for-deep-learning/
+
+
+`mkvirtualenv -p python3 pneumo`
+
+`workon pneumo`
+
+`pip install -r keras_tf_requirements.txt`
+
+`pip install -r custom_requirements.txt`
