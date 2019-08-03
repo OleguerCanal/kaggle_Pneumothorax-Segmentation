@@ -11,7 +11,7 @@ import sys
 sys.path.append(str(Path(__file__).parent))
 from metrics import dice_coef
 
-def simple_u_net(input_shape = (256, 256, 1)):
+def simple_u_net(input_shape = (None, None, 1)):
     inputs = Input(input_shape)
 
     c1 = Conv2D(8, (3, 3), activation='relu', padding='same') (inputs)
