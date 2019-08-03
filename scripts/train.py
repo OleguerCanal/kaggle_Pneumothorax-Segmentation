@@ -77,7 +77,7 @@ def log_model(path, model):
 
 if __name__ == "__main__":
     # data_path = "/home/oleguer/projects/kaggle_Pneumothorax-Segmentation/raw_data/input/train/images/64/"
-    data_path = "/media/oleguer/Extenció/FEINA/projectes/pneumotorax/input/train/images/256/"
+    data_path = "/media/oleguer/Extenció/FEINA/projectes/pneumotorax/input/train/images/32/"
     train_paths = sorted(glob(data_path + "/dicom/*.png"))
 
 
@@ -92,10 +92,11 @@ if __name__ == "__main__":
     # 4. Define model
 
     # Datagen
-    val_ratio = 5e-4
-    batch_size = 2
-    datagen = DiskDataGenerator(train_paths, batch_size = batch_size)
-    x_val, y_val = datagen.get_val(val_ratio = val_ratio)
+    datagen = DiskDataGenerator(train_paths,
+                                val_ratio = 0.2,
+                                train_batch_size = 1,
+                                val_batch_size = 1)
+    # x_val, y_val = datagen.get_val(val_ratio = val_ratio)
     # x_train, x_val, y_train, y_val = load_data(train_paths)
     # datagen_args = dict(
     #             rotation_range = 5,
@@ -128,15 +129,16 @@ if __name__ == "__main__":
     callbacks = [checkpoint, learning_rate_reduction, tensorboard]
 
     # 4. Fit Model
-    epochs = 200
+    epochs = 100
     history = model.fit_generator(
-                        generator = datagen.flow(),
+                        generator = datagen.flow_train(),
                         epochs = epochs,
-                        validation_data = (x_val, y_val),
+                        validation_data = datagen.flow_val(),
+                        validation_steps = datagen.get_val_steps(),
                         verbose = 1,
                         callbacks = callbacks,
                         # steps_per_epoch = (1 - val_ratio)*len(train_paths) // (batch_size))  # // is floor division
-                        steps_per_epoch = datagen.get_steps())  # // is floor division
+                        steps_per_epoch = datagen.get_train_steps())  # // is floor division
 
     # history = model.fit_generator(
     #                         generator = datagen.flow(x_train, y_train, batch_size = batch_size),
