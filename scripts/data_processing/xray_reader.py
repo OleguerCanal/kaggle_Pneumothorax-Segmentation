@@ -14,29 +14,32 @@ from mask_functions import mask2rle, rle2mask
 class XRay:
     """ Class to hold and plot XRay information
     """
-    def __init__(self, image_path):
-        self.image_id = image_path.split("/")[-1].replace(".png", "")
-        self.image_path = image_path
-        self.label_path = image_path.replace("dicom", "mask")
-        # self.data = pydicom.dcmread(self.image_path)
-        # self.scan = self.data.pixel_array
+    def __init__(self, image_path = None):
+        if image_path is not None:
+            self.image_id = image_path.split("/")[-1].replace(".png", "")
+            self.image_path = image_path
+            self.label_path = image_path.replace("dicom", "mask")
+            # self.data = pydicom.dcmread(self.image_path)
+            # self.scan = self.data.pixel_array
 
-        # rows = int(self.data.Rows)
-        # cols = int(self.data.Columns)
-        # self.mask = rle2mask(label, rows, cols)
-        # self.mask
-        # print(self.mask.shape)
+            # rows = int(self.data.Rows)
+            # cols = int(self.data.Columns)
+            # self.mask = rle2mask(label, rows, cols)
+            # self.mask
+            # print(self.mask.shape)
 
-        self.scan = cv2.imread(self.image_path, cv2.IMREAD_GRAYSCALE) / 255.
-        self.mask = cv2.imread(self.label_path, cv2.IMREAD_GRAYSCALE) / 255.
-        self.mask = cv2.resize(self.mask, (self.scan.shape[0], self.scan.shape[1]))
+            self.scan = cv2.imread(self.image_path, cv2.IMREAD_GRAYSCALE) / 255.
+            self.mask = cv2.imread(self.label_path, cv2.IMREAD_GRAYSCALE) / 255.
+            self.mask = cv2.resize(self.mask, (self.scan.shape[0], self.scan.shape[1]))
 
-        # print("max_scan", np.max(self.scan))
-        # print("min_scan", np.min(self.scan))
+            # print("max_scan", np.max(self.scan))
+            # print("min_scan", np.min(self.scan))
 
-        # print("max_mask", np.max(self.mask))
-        # print("min_mask", np.min(self.mask))
-        # print("###")
+            # print("max_mask", np.max(self.mask))
+            # print("min_mask", np.min(self.mask))
+            # print("###")
+        else:
+            pass
 
     def show_dcm_info(self):
         # print("Filename.........:", self.image_path)
@@ -72,12 +75,16 @@ class XRay:
         plt.imshow(self.mask, cmap = plt.cm.bone)
         plt.show()
     
-    def plot_composition(self):
-        rgb = cv2.cvtColor(self.scan, cv2.COLOR_GRAY2RGB)
+    def plot_composition(self, rgb = None, mask_1ch = None):
+        if rgb is None:
+            rgb = self.scan
+        if mask_1ch is None:
+            mask_1ch = self.mask
+        rgb = cv2.cvtColor(rgb, cv2.COLOR_GRAY2RGB)
         rgb = np.uint8(rgb)
 
         mask = np.zeros((rgb.shape[0], rgb.shape[1], 3), np.uint8)
-        mask[:,:, 2] = self.mask
+        mask[:,:, 2] = mask_1ch
 
         composition = cv2.addWeighted(rgb, 0.8, mask, 0.2, 0)
 
