@@ -1,6 +1,6 @@
 retrying
 google-auth
 pydicom
-Pillow==3.3.2
+pillow>=6.2.0
 tqdm
 pandas
