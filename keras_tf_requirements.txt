@@ -9,5 +9,5 @@ requests
 progressbar2
 scikit-learn
 scikit-image
-tensorflow-gpu==1.14.0
+tensorflow-gpu==2.12.0
 keras
